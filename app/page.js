@@ -47,6 +47,8 @@ export default function Home() {
   const [editDate, setEditDate] = useState(todayStr());
   const [editCategory, setEditCategory] = useState(DEFAULT_CATEGORIES[0]);
   const [editNote, setEditNote] = useState('');
+  const [editTaksitNo, setEditTaksitNo] = useState(null);
+  const [editTaksitToplam, setEditTaksitToplam] = useState(null);
   const [filterCategory, setFilterCategory] = useState(FILTER_ALL);
   const [filterUser, setFilterUser] = useState(FILTER_ALL);
   const [filterStartDate, setFilterStartDate] = useState('');
@@ -257,7 +259,7 @@ export default function Home() {
     setCategories((data ?? []).map((x) => normalizeCategory(x.name)).filter(Boolean));
   }
   async function loadExpenses(groupId) {
-    const { data, error } = await supabase.from('expenses').select('id,amount,category,note,spent_at,user_id').eq('group_id', groupId).order('spent_at', { ascending: false });
+    const { data, error } = await supabase.from('expenses').select('id,amount,category,note,spent_at,user_id,taksit_toplam,taksit_no,taksit_grup_id').eq('group_id', groupId).order('spent_at', { ascending: false });
     if (error) throw error;
     setExpenses(data ?? []);
   }
@@ -323,7 +325,8 @@ export default function Home() {
       }
     });
   }
-  function handleCancelEditExpense() { setEditExpenseId(''); setEditAmount(''); setEditDate(todayStr()); setEditCategory(effectiveCategories[0] || DEFAULT_CATEGORIES[0]); setEditNote(''); }
+  function handleStartEditExpense(expense) { setEditExpenseId(expense.id); setEditAmount(String(expense.amount)); setEditDate(expense.spent_at.slice(0, 10)); setEditCategory(expense.category); setEditNote(expense.note || ''); setEditTaksitNo(expense.taksit_no ?? null); setEditTaksitToplam(expense.taksit_toplam ?? null); }
+  function handleCancelEditExpense() { setEditExpenseId(''); setEditAmount(''); setEditDate(todayStr()); setEditCategory(effectiveCategories[0] || DEFAULT_CATEGORIES[0]); setEditNote(''); setEditTaksitNo(null); setEditTaksitToplam(null); }
   async function handleSaveEditExpense() {
     if (!editExpenseId) return;
     const n = Number(String(editAmount).replace(',', '.'));
@@ -390,7 +393,7 @@ export default function Home() {
   if (!session) return <AuthScreen authMode={authMode} setAuthMode={setAuthMode} email={email} setEmail={setEmail} password={password} setPassword={setPassword} usernameInput={usernameInput} setUsernameInput={setUsernameInput} busy={!!busy} handleLogin={handleLogin} handleRegister={handleRegister} handleForgotPassword={handleForgotPassword} handleGoogleLogin={handleGoogleLogin} isDark={isDark} toastMsg={toastMsg} toastType={toastType} toastVisible={toastVisible} />;
   if (!group) return <GroupSetup joinCode={joinCode} setJoinCode={setJoinCode} handleCreateGroup={handleCreateGroup} handleJoinGroup={handleJoinGroup} handleLogout={handleLogout} busy={!!busy} isDark={isDark} toastMsg={toastMsg} toastType={toastType} toastVisible={toastVisible} />;
 
-  const listProps = { groupedExpenses, weeklyData, pieData, monthlyTotal, budgetNum, budgetRemaining, budgetProgress, filteredTotal, avgDaily, topCategory, dailyBudgetLimit, remainingDays, lastMonthTotal, monthTrend, biggestExpense, members, memberMap, memberMonthlyTotals, memberOptions, effectiveCategories, group, hasActiveFilters, session, filterCategory, setFilterCategory, filterUser, setFilterUser, filterStartDate, setFilterStartDate, filterEndDate, setFilterEndDate, searchText, setSearchText, isFilterOpen, filterMounted, toggleFilter, clearAllFilters, presetDate, editExpenseId, editAmount, setEditAmount, editDate, setEditDate, editCategory, setEditCategory, editNote, setEditNote, handleStartEditExpense, handleSaveEditExpense, handleCancelEditExpense, handleDeleteExpense, onAddExpense: () => setActiveTab('add'), isDark, FILTER_ALL, formatMoney, upcomingInstallments };
+  const listProps = { groupedExpenses, weeklyData, pieData, monthlyTotal, budgetNum, budgetRemaining, budgetProgress, filteredTotal, avgDaily, topCategory, dailyBudgetLimit, remainingDays, lastMonthTotal, monthTrend, biggestExpense, members, memberMap, memberMonthlyTotals, memberOptions, effectiveCategories, group, hasActiveFilters, session, filterCategory, setFilterCategory, filterUser, setFilterUser, filterStartDate, setFilterStartDate, filterEndDate, setFilterEndDate, searchText, setSearchText, isFilterOpen, filterMounted, toggleFilter, clearAllFilters, presetDate, editExpenseId, editAmount, setEditAmount, editDate, setEditDate, editCategory, setEditCategory, editNote, setEditNote, editTaksitNo, editTaksitToplam, handleStartEditExpense, handleSaveEditExpense, handleCancelEditExpense, handleDeleteExpense, onAddExpense: () => setActiveTab('add'), isDark, FILTER_ALL, formatMoney, upcomingInstallments };
   const addProps = { amount, setAmount, expenseDate, setExpenseDate, note, setNote, category, setCategory, effectiveCategories, canAddExpense, handleAddExpense, isDark, isTaksit, setIsTaksit, taksitCount, setTaksitCount };
   const settingsProps = { session, group, members, memberMap, memberOptions, effectiveCategories, categories, settingsSection, setSettingsSection, groupNameEdit, setGroupNameEdit, budgetTarget, setBudgetTarget, editName, setEditName, newCategory, setNewCategory, themeMode, setThemeMode, isDark, handleSaveUsername, handleUpdateGroupName, handleSaveBudget, handleAddCategory, handleDeleteCategory, handleRemoveMember, handleCopyCode, handleShareWhatsApp, handleLogout, monthlyTotal, budgetRemaining, budgetProgress, formatMoney };
 

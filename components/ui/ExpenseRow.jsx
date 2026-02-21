@@ -1,5 +1,5 @@
 'use client';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ShoppingCart,
   Zap,
@@ -10,6 +10,7 @@ import {
   Trash2,
   X,
   Check,
+  CreditCard,
 } from 'lucide-react';
 
 const CATEGORY_META = {
@@ -52,6 +53,8 @@ export default function ExpenseRow({
   setEditCategory,
   editNote,
   setEditNote,
+  editTaksitNo,
+  editTaksitToplam,
   effectiveCategories,
   handleStartEditExpense,
   handleSaveEditExpense,
@@ -65,136 +68,169 @@ export default function ExpenseRow({
   const member = memberMap?.get(it.user_id) || 'Kullanici';
   const delay = Math.min(staggerIndex * 0.04, 0.5);
 
-  const inputClass = `w-full rounded-[10px] px-3 py-3 text-[15px] outline-none ${
-    isDark
-      ? 'bg-[#2C2C2E] text-white placeholder-white/30'
-      : 'bg-[#F2F2F7] text-black placeholder-black/30'
-  }`;
+  const { Icon: EditIcon, color: editColor, bg: editBg } = getCategoryMeta(editCategory);
+
+  const cardBg = isDark ? 'bg-[#1C1C1E]' : 'bg-white';
+  const border = isDark ? 'border-white/[0.06]' : 'border-black/[0.06]';
+  const inputBg = isDark ? 'bg-[#2C2C2E]' : 'bg-[#F2F2F7]';
+  const textColor = isDark ? 'text-white' : 'text-black';
+  const dimColor = isDark ? 'text-white/40' : 'text-black/40';
+  const divider = isDark ? 'border-white/[0.08]' : 'border-black/[0.06]';
+
+  const inputClass = `w-full rounded-[12px] px-4 py-3.5 text-[16px] outline-none ${inputBg} ${textColor}`;
 
   if (isEditing) {
     return (
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className={`mx-4 mb-1 rounded-[16px] p-4 border ${
-          isDark ? 'bg-[#1C1C1E] border-white/[0.06]' : 'bg-white border-black/[0.06]'
-        }`}
+        initial={{ opacity: 0, scale: 0.97 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ type: 'spring', damping: 20, stiffness: 280 }}
+        className={`mx-4 mb-3 rounded-[24px] border ${cardBg} ${border} overflow-hidden shadow-lg`}
+        style={{ boxShadow: isDark ? '0 8px 32px rgba(0,0,0,0.5)' : '0 8px 32px rgba(0,0,0,0.10)' }}
       >
-        <p className={`text-[17px] font-semibold mb-3 ${isDark ? 'text-white' : 'text-black'}`}>
-          Duzenle
-        </p>
-        <div className="flex flex-col gap-2">
-          <div>
-            <label
-              className={`text-[11px] font-semibold uppercase tracking-wider mb-1 block ${
-                isDark ? 'text-white/40' : 'text-black/40'
-              }`}
-            >
-              Tutar
-            </label>
+        {/* Edit Header */}
+        <div
+          className="px-5 pt-5 pb-4 flex items-center gap-3"
+          style={{ background: `linear-gradient(135deg, ${editColor}18 0%, ${editColor}08 100%)` }}
+        >
+          <div
+            className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"
+            style={{ backgroundColor: editColor + '22' }}
+          >
+            <EditIcon size={20} color={editColor} strokeWidth={1.8} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className={`text-[18px] font-bold ${textColor}`}>Kaydi Duzenle</p>
+            {editTaksitToplam ? (
+              <span
+                className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full mt-0.5"
+                style={{ backgroundColor: '#5856D6' + '22', color: '#5856D6' }}
+              >
+                <CreditCard size={10} />
+                {editTaksitNo}/{editTaksitToplam} Taksit
+              </span>
+            ) : (
+              <p className={`text-[12px] mt-0.5 ${dimColor}`}>Tek seferlik harcama</p>
+            )}
+          </div>
+          <button
+            onClick={handleCancelEditExpense}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-opacity ${isDark ? 'bg-white/10' : 'bg-black/08'}`}
+          >
+            <X size={15} color={isDark ? 'rgba(235,235,245,0.6)' : 'rgba(60,60,67,0.6)'} />
+          </button>
+        </div>
+
+        <div className={`border-t ${divider}`} />
+
+        {/* Amount */}
+        <div className="px-5 pt-4 pb-0">
+          <p className={`text-[11px] font-semibold uppercase tracking-wider mb-2 ${dimColor}`}>Tutar</p>
+          <div
+            className="flex items-center gap-2 rounded-[16px] px-4 py-3"
+            style={{ backgroundColor: editColor + '12' }}
+          >
+            <span className="text-[22px] font-light" style={{ color: editColor }}>₺</span>
             <input
               type="number"
               value={editAmount}
               onChange={(e) => setEditAmount(e.target.value)}
-              className={inputClass}
-              placeholder="0.00"
+              className="flex-1 bg-transparent text-[24px] font-bold outline-none text-right"
+              style={{ color: editColor }}
+              placeholder="0,00"
             />
           </div>
-          <div>
-            <label
-              className={`text-[11px] font-semibold uppercase tracking-wider mb-1 block ${
-                isDark ? 'text-white/40' : 'text-black/40'
-              }`}
-            >
-              Tarih
-            </label>
-            <input
-              type="date"
-              value={editDate}
-              onChange={(e) => setEditDate(e.target.value)}
-              className={inputClass}
-            />
+        </div>
+
+        {/* Date */}
+        <div className="px-5 pt-4 pb-0">
+          <p className={`text-[11px] font-semibold uppercase tracking-wider mb-2 ${dimColor}`}>Tarih</p>
+          <input
+            type="date"
+            value={editDate}
+            onChange={(e) => setEditDate(e.target.value)}
+            className={inputClass}
+          />
+        </div>
+
+        {/* Category */}
+        <div className="px-5 pt-4 pb-0">
+          <p className={`text-[11px] font-semibold uppercase tracking-wider mb-2 ${dimColor}`}>Kategori</p>
+          <div className="flex flex-wrap gap-2">
+            {effectiveCategories?.map((c) => {
+              const m = getCategoryMeta(c);
+              const active = editCategory === c;
+              return (
+                <button
+                  key={c}
+                  onClick={() => setEditCategory(c)}
+                  className="rounded-full px-3.5 py-2 text-[13px] font-semibold border transition-all duration-150"
+                  style={{
+                    backgroundColor: active ? m.bg : 'transparent',
+                    color: active
+                      ? m.color
+                      : isDark
+                        ? 'rgba(235,235,245,0.4)'
+                        : 'rgba(60,60,67,0.4)',
+                    borderColor: active
+                      ? m.color + '80'
+                      : isDark
+                        ? 'rgba(255,255,255,0.10)'
+                        : 'rgba(0,0,0,0.10)',
+                    boxShadow: active ? `0 2px 8px ${m.color}30` : undefined,
+                  }}
+                >
+                  {c}
+                </button>
+              );
+            })}
           </div>
-          <div>
-            <label
-              className={`text-[11px] font-semibold uppercase tracking-wider mb-1 block ${
-                isDark ? 'text-white/40' : 'text-black/40'
-              }`}
-            >
-              Kategori
-            </label>
-            <div className="flex flex-wrap gap-1.5 mt-1">
-              {effectiveCategories?.map((c) => {
-                const m = getCategoryMeta(c);
-                const active = editCategory === c;
-                return (
-                  <button
-                    key={c}
-                    onClick={() => setEditCategory(c)}
-                    className="rounded-full px-3 py-1.5 text-[12px] font-semibold border transition-all"
-                    style={{
-                      backgroundColor: active ? m.bg : 'transparent',
-                      color: active
-                        ? m.color
-                        : isDark
-                          ? 'rgba(235,235,245,0.4)'
-                          : 'rgba(60,60,67,0.4)',
-                      borderColor: active
-                        ? m.color
-                        : isDark
-                          ? 'rgba(255,255,255,0.12)'
-                          : 'rgba(0,0,0,0.12)',
-                    }}
-                  >
-                    {c}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          <div>
-            <label
-              className={`text-[11px] font-semibold uppercase tracking-wider mb-1 block ${
-                isDark ? 'text-white/40' : 'text-black/40'
-              }`}
-            >
-              Not
-            </label>
-            <input
-              type="text"
-              value={editNote}
-              onChange={(e) => setEditNote(e.target.value)}
-              className={inputClass}
-              placeholder="Opsiyonel"
-            />
-          </div>
-          <div className="flex gap-2 mt-1">
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              onClick={handleSaveEditExpense}
-              className="flex-1 py-3 bg-[#007AFF] text-white rounded-[12px] text-[15px] font-semibold flex items-center justify-center gap-1.5"
-            >
-              <Check size={16} /> Kaydet
-            </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              onClick={handleCancelEditExpense}
-              className={`flex-1 py-3 rounded-[12px] text-[15px] font-semibold border ${
-                isDark ? 'border-white/20 text-white/60' : 'border-black/20 text-black/60'
-              }`}
-            >
-              <span className="flex items-center justify-center gap-1.5">
-                <X size={16} /> Iptal
-              </span>
-            </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              onClick={() => handleDeleteExpense(it.id)}
-              className="px-4 py-3 rounded-[12px] border border-[#FF3B30]/30 text-[#FF3B30]"
-            >
-              <Trash2 size={16} />
-            </motion.button>
-          </div>
+        </div>
+
+        {/* Note */}
+        <div className="px-5 pt-4 pb-5">
+          <p className={`text-[11px] font-semibold uppercase tracking-wider mb-2 ${dimColor}`}>
+            Not <span className="normal-case font-normal">(opsiyonel)</span>
+          </p>
+          <input
+            type="text"
+            value={editNote}
+            onChange={(e) => setEditNote(e.target.value)}
+            className={inputClass}
+            placeholder="Aciklama ekle..."
+          />
+        </div>
+
+        <div className={`border-t ${divider}`} />
+
+        {/* Actions */}
+        <div className="px-5 py-4 flex gap-2.5">
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={handleSaveEditExpense}
+            className="flex-1 py-3.5 rounded-[14px] text-[15px] font-bold flex items-center justify-center gap-2 text-white"
+            style={{ backgroundColor: '#007AFF', boxShadow: '0 4px 16px rgba(0,122,255,0.35)' }}
+          >
+            <Check size={17} strokeWidth={2.5} />
+            Kaydet
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={handleCancelEditExpense}
+            className={`py-3.5 px-4 rounded-[14px] text-[15px] font-semibold border ${
+              isDark ? 'border-white/15 text-white/60' : 'border-black/12 text-black/50'
+            }`}
+          >
+            Iptal
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={() => handleDeleteExpense(it.id)}
+            className="py-3.5 px-4 rounded-[14px] border"
+            style={{ borderColor: '#FF3B30' + '40', backgroundColor: '#FF3B30' + '10' }}
+          >
+            <Trash2 size={17} color="#FF3B30" />
+          </motion.button>
         </div>
       </motion.div>
     );
@@ -235,9 +271,10 @@ export default function ExpenseRow({
           ) : null}
           {it.taksit_toplam ? (
             <span
-              className="inline-block mt-1 text-[11px] font-semibold px-2 py-0.5 rounded-full"
+              className="inline-flex items-center gap-1 mt-1 text-[11px] font-semibold px-2 py-0.5 rounded-full"
               style={{ backgroundColor: '#5856D6' + '22', color: '#5856D6' }}
             >
+              <CreditCard size={10} />
               {it.taksit_no}/{it.taksit_toplam} Taksit
             </span>
           ) : null}
