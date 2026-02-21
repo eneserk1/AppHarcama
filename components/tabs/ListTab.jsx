@@ -73,6 +73,10 @@ export default function ListTab({
   setEditNote,
   editTaksitNo,
   editTaksitToplam,
+  editIsTaksit,
+  setEditIsTaksit,
+  editTaksitCount,
+  setEditTaksitCount,
   handleStartEditExpense,
   handleSaveEditExpense,
   handleCancelEditExpense,
@@ -536,6 +540,10 @@ export default function ListTab({
                       setEditNote={setEditNote}
                       editTaksitNo={editTaksitNo}
                       editTaksitToplam={editTaksitToplam}
+                      editIsTaksit={editIsTaksit}
+                      setEditIsTaksit={setEditIsTaksit}
+                      editTaksitCount={editTaksitCount}
+                      setEditTaksitCount={setEditTaksitCount}
                       effectiveCategories={effectiveCategories}
                       handleStartEditExpense={handleStartEditExpense}
                       handleSaveEditExpense={handleSaveEditExpense}
