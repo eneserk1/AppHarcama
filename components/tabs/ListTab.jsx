@@ -71,6 +71,8 @@ export default function ListTab({
   setEditCategory,
   editNote,
   setEditNote,
+  editTaksitNo,
+  editTaksitToplam,
   handleStartEditExpense,
   handleSaveEditExpense,
   handleCancelEditExpense,
@@ -532,6 +534,8 @@ export default function ListTab({
                       setEditCategory={setEditCategory}
                       editNote={editNote}
                       setEditNote={setEditNote}
+                      editTaksitNo={editTaksitNo}
+                      editTaksitToplam={editTaksitToplam}
                       effectiveCategories={effectiveCategories}
                       handleStartEditExpense={handleStartEditExpense}
                       handleSaveEditExpense={handleSaveEditExpense}
