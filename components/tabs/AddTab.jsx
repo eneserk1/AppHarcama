@@ -28,6 +28,10 @@ export default function AddTab({
   canAddExpense,
   handleAddExpense,
   isDark,
+  isTaksit,
+  setIsTaksit,
+  taksitCount,
+  setTaksitCount,
 }) {
   const [catBounce, setCatBounce] = useState(null);
   const amountLen = amount.length;
@@ -174,6 +178,72 @@ export default function AddTab({
         </div>
       </div>
 
+      {/* Taksit */}
+      <div className={`mx-4 mb-4 rounded-[20px] border ${cardBg} ${border} overflow-hidden`}>
+        <div className="p-4 flex items-center justify-between">
+          <div>
+            <p className={`text-[15px] font-semibold ${textColor}`}>Taksitli Alim</p>
+            <p className={`text-[12px] mt-0.5 ${dimColor}`}>
+              {isTaksit ? `${taksitCount} ay boyunca` : 'Tek seferlik odeme'}
+            </p>
+          </div>
+          <button
+            onClick={() => setIsTaksit(!isTaksit)}
+            className={`w-12 h-7 rounded-full transition-all duration-200 relative flex-shrink-0`}
+            style={{ backgroundColor: isTaksit ? '#007AFF' : isDark ? '#3A3A3C' : '#E5E5EA' }}
+          >
+            <span
+              className="absolute top-[3px] w-[22px] h-[22px] rounded-full bg-white shadow-sm transition-all duration-200"
+              style={{ left: isTaksit ? '22px' : '2px' }}
+            />
+          </button>
+        </div>
+        {isTaksit && (
+          <div className={`border-t ${divider} p-4`}>
+            <p className={`text-[12px] font-semibold uppercase tracking-wider mb-2 ${dimColor}`}>
+              Taksit Sayisi
+            </p>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setTaksitCount((v) => String(Math.max(2, parseInt(v) - 1)))}
+                className={`w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold ${isDark ? 'bg-[#2C2C2E] text-white' : 'bg-[#F2F2F7] text-black'}`}
+              >
+                −
+              </button>
+              <input
+                type="number"
+                value={taksitCount}
+                onChange={(e) => setTaksitCount(String(Math.max(2, Math.min(60, parseInt(e.target.value) || 2))))}
+                className={`flex-1 text-center rounded-[12px] px-3 py-3 text-[20px] font-bold outline-none ${inputBg} ${textColor}`}
+                min="2"
+                max="60"
+              />
+              <button
+                onClick={() => setTaksitCount((v) => String(Math.min(60, parseInt(v) + 1)))}
+                className={`w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold ${isDark ? 'bg-[#2C2C2E] text-white' : 'bg-[#F2F2F7] text-black'}`}
+              >
+                +
+              </button>
+            </div>
+            {Number(amount) > 0 && (
+              <div className={`mt-3 rounded-[12px] p-3 ${isDark ? 'bg-[#2C2C2E]' : 'bg-[#F2F2F7]'}`}>
+                <p className={`text-[13px] text-center ${dimColor}`}>
+                  Aylik <span className="font-bold" style={{ color: '#007AFF' }}>
+                    ₺{Number(Number(amount.replace(',','.')).toFixed(2)).toLocaleString('tr-TR', {minimumFractionDigits:2})}
+                  </span>
+                  {' · '}
+                  {taksitCount} ay
+                  {' · '}
+                  Toplam <span className="font-bold" style={{ color: '#5856D6' }}>
+                    ₺{(Number(amount.replace(',','.')) * parseInt(taksitCount)).toLocaleString('tr-TR', {minimumFractionDigits:2})}
+                  </span>
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Save button */}
       <div className="mx-4">
         <motion.button
@@ -196,7 +266,7 @@ export default function AddTab({
           }}
         >
           <CheckCircle2 size={22} strokeWidth={2} />
-          {canAddExpense ? 'Harcama Kaydet' : 'Tutar gir'}
+          {canAddExpense ? (isTaksit ? `${taksitCount} Taksit Kaydet` : 'Harcama Kaydet') : 'Tutar gir'}
         </motion.button>
       </div>
     </div>

@@ -77,6 +77,7 @@ export default function ListTab({
   handleDeleteExpense,
   onAddExpense,
   isDark,
+  upcomingInstallments,
 }) {
   const sessionUserId = session?.user?.id;
   const containerBg = isDark ? 'bg-black' : 'bg-[#F5F5F7]';
@@ -167,6 +168,36 @@ export default function ListTab({
               ) : (
                 <TrendingDown size={32} className="text-[#34C759]" />
               )}
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Upcoming Installments */}
+      {upcomingInstallments > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: 'spring', damping: 20, stiffness: 200, delay: 0.22 }}
+          className={containerClass}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className={`text-[13px] font-semibold ${dimColor} uppercase tracking-wider`}>
+                Gelecek Ay Taksit
+              </p>
+              <p className="text-[24px] font-bold mt-1" style={{ color: '#5856D6' }}>
+                {formatMoney(upcomingInstallments)}
+              </p>
+              <p className={`text-[12px] mt-0.5 ${dimColor}`}>
+                Sonraki ay odenecek taksitler
+              </p>
+            </div>
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: '#5856D6' + '22' }}
+            >
+              <span style={{ color: '#5856D6', fontSize: 22 }}>₺</span>
             </div>
           </div>
         </motion.div>
