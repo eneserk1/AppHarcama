@@ -233,6 +233,14 @@ export default function ExpenseRow({
               {it.note}
             </p>
           ) : null}
+          {it.taksit_toplam ? (
+            <span
+              className="inline-block mt-1 text-[11px] font-semibold px-2 py-0.5 rounded-full"
+              style={{ backgroundColor: '#5856D6' + '22', color: '#5856D6' }}
+            >
+              {it.taksit_no}/{it.taksit_toplam} Taksit
+            </span>
+          ) : null}
         </div>
         <div className="text-right flex-shrink-0">
           <p className="text-[17px] font-semibold" style={{ color }}>
